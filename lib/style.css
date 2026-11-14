@@ -208,7 +208,7 @@ html:not(.teach) .teach-only{display:none!important}
 .ss-tabs button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 .ss-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}.ss.one .ss-grid{grid-template-columns:1fr}
 .ss-panel{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#FFFEFA;display:flex;flex-direction:column}
-.ss-panel svg{display:block;width:100%;height:auto;aspect-ratio:3/2}
+.ss-panel svg{display:block;width:100%;height:auto}
 .ss.one .ss-panel svg{aspect-ratio:auto;max-height:520px}
 .ss-ph{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--ink2);padding:.45em .8em;border-bottom:1px solid var(--line);background:#F6F3EB}
 .ss-text{padding:.7em 1em;font-size:1.02rem;line-height:1.5;background:var(--violet-bg);border-radius:12px;margin-top:.8rem;min-height:3.4em;max-width:none}
@@ -220,5 +220,5 @@ html:not(.teach) .teach-only{display:none!important}
 .ss-ro:empty{display:none}.ss-ro b{font-variant-numeric:tabular-nums}
 .kf{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.6rem}.kf .formula{margin:0}
 details.more-text>summary{font-weight:600}
-@media (max-width:860px){.ss-grid{grid-template-columns:1fr}.ss{padding:.8rem}}
+@media (max-width:860px){.ss-grid{grid-template-columns:1fr!important}.ss{padding:.8rem}}
 @media print{.ss-bar,.ss-ctrl,.ss-tabs{display:none!important}details.more-text{display:block}details.more-text>div{display:block!important}}
