@@ -16,6 +16,11 @@
 <script src="lib/lab.js"></script>
 <script src="lib/sims2.js"></script>
 <script src="lib/sims3.js"></script>
+<script src="lib/steps.js"></script>
+<script src="lib/sc1.js"></script>
+<script src="lib/sc2.js"></script>
+<script src="lib/sc3.js"></script>
+<script src="lib/sc4.js"></script>
 <script src="lib/module.js"></script>
 <script>
 /* Загружаем все модули и проверяем: ключи заданий, отказ на неверный ответ, запуск моделей, иллюстрации, формулы. */
@@ -59,6 +64,8 @@
         catch (e) { bad.push('модель ' + s[0] + ': ' + e.message); tot.simBad++; }
         host.remove();
       });
+      if (!m.scene || !QB.steps[m.scene]) { bad.push('нет разбора по шагам'); tot.simBad++; }
+      else { var D = QB.steps[m.scene], SS = {}; (D.params || []).forEach(function (p) { SS[p.k] = p.value; }); D.steps.forEach(function (st, si) { tot.sc = (tot.sc || 0) + 1; if (st.set) for (var kk in st.set) SS[kk] = st.set[kk]; [0, .5, 1].forEach(function (kv) { try { var out = D.right(SS, { i: si, k: kv, on: function (j) { return j < si ? 1 : j === si ? kv : 0; }, time: 1.7, S: SS }) + (D.left ? D.left(SS, { i: si, k: kv, time: 1.7, S: SS, on: function () { return 1; } }) : ''); if (/NaN|undefined|Infinity/.test(out)) throw new Error('NaN в разметке'); } catch (e) { bad.push('разбор ' + m.scene + ', шаг ' + (si + 1) + ': ' + e.message); tot.simBad++; } }); }); }
       [m.hook.fig].concat(m.theory.map(function (b) { return b.fig; })).filter(Boolean).forEach(function (f) { tot.fig++; try { var svg = QB.figs[f].svg(); if (svg.indexOf('<svg') !== 0 || svg.indexOf('NaN') >= 0 || svg.indexOf('undefined') >= 0) throw new Error('некорректный SVG'); if (!QB.figs[f].alt) throw new Error('нет описания'); } catch (e) { bad.push('иллюстрация ' + f + ': ' + e.message); tot.figBad++; } });
       var txt = JSON.stringify(m); (txt.match(/\$[^$]+\$/g) || []).forEach(function (f) { tot.f++; var r = QB.fmt(JSON.parse('"' + f + '"')); if (/[{}\\^]|_[A-Za-zА-я0-9]/.test(r.replace(/<[^>]+>/g, ''))) { bad.push('формула: ' + f.slice(0, 40)); tot.fBad++; } });
       rows.push([m.n, m.title, bad.length ? bad.join('; ') : 'без замечаний', m.quiz.length]);
@@ -66,7 +73,7 @@
     QB._demo = false; sand.remove();
     try { Object.keys(localStorage).forEach(function () { }); var d = QB.store.all(); Object.keys(d.mods).forEach(function (k) { if (k.indexOf('qa-') === 0) delete d.mods[k]; }); QB.store.save(); } catch (e) { }
     var ok = !(tot.qBad + tot.simBad + tot.figBad + tot.fBad);
-    out.appendChild(h('div', { class: 'fb ' + (ok ? 'ok' : 'no'), id: 'qa-result', 'data-ok': String(ok), html: '<b class="tag">' + (ok ? '✓ Автоматическая проверка пройдена' : '✗ Есть замечания') + '</b>Модулей: ' + rows.length + ' · заданий: ' + tot.q + ' (ошибок: ' + tot.qBad + ') · запусков моделей: ' + tot.sim + ' (ошибок: ' + tot.simBad + ') · иллюстраций: ' + tot.fig + ' (ошибок: ' + tot.figBad + ') · формул: ' + tot.f + ' (ошибок разметки: ' + tot.fBad + ')' }));
+    out.appendChild(h('div', { class: 'fb ' + (ok ? 'ok' : 'no'), id: 'qa-result', 'data-ok': String(ok), html: '<b class="tag">' + (ok ? '✓ Автоматическая проверка пройдена' : '✗ Есть замечания') + '</b>Модулей: ' + rows.length + ' · заданий: ' + tot.q + ' (ошибок: ' + tot.qBad + ') · шагов разборов: ' + (tot.sc || 0) + ' · запусков моделей: ' + tot.sim + ' (ошибок: ' + tot.simBad + ') · иллюстраций: ' + tot.fig + ' (ошибок: ' + tot.figBad + ') · формул: ' + tot.f + ' (ошибок разметки: ' + tot.fBad + ')' }));
     out.appendChild(h('div', { class: 'tw', style: 'margin-top:1rem' }, h('table', { class: 't' }, [h('tr', {}, ['№', 'Модуль', 'Заданий', 'Результат'].map(function (x) { return h('th', { text: x }); }))].concat(rows.map(function (r) { return h('tr', {}, [h('td', { text: r[0] }), h('td', { text: r[1] }), h('td', { text: r[3] || '' }), h('td', { text: r[2] })]); })))));
     out.appendChild(h('p', { class: 'note', style: 'margin-top:1rem', text: 'Что проверяется: каждое задание принимает свой ключ и отклоняет заведомо неверный ответ; каждая модель запускается и проходит все шаги режима «Смотрю объяснение»; иллюстрации строятся и имеют текстовое описание; в формулах не осталось неразобранной разметки. Что не проверяется: научная корректность формулировок, удобство на конкретном устройстве, восприятие учащимися.' }));
     window.QA = { ok: ok, tot: tot, rows: rows };
