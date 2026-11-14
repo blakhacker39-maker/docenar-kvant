@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Самопроверка учебника — DOCENAR • КВАНТ</title>
+<link rel="stylesheet" href="lib/style.css">
+<link rel="icon" href="assets/images/favicon.svg">
+</head>
+<body>
+<script src="lib/physics.js"></script>
+<script src="lib/core.js"></script>
+<script src="lib/toc.js"></script>
+<script src="lib/art.js"></script>
+<script src="lib/art2.js"></script>
+<script src="lib/lab.js"></script>
+<script src="lib/sims2.js"></script>
+<script src="lib/sims3.js"></script>
+<script src="lib/module.js"></script>
+<script>
+/* Загружаем все модули и проверяем: ключи заданий, отказ на неверный ответ, запуск моделей, иллюстрации, формулы. */
+(function () {
+  var h = QB.h, n = 0, files = QB.TOC.list.map(function (m) { return 'modules/data/' + m.id + '.js'; });
+  QB.topbar('Техническая самопроверка');
+  var main = h('main', { class: 'wrap', id: 'main' }, [h('h1', { text: 'Самопроверка учебника' }), h('p', { text: 'Страница загружает все модули и автоматически проверяет то, что можно проверить без человека. Она не заменяет проверку содержания преподавателем.' })]);
+  var out = h('div'); main.appendChild(out); document.body.appendChild(main);
+  function next() {
+    if (n >= files.length) return run();
+    var s = document.createElement('script'); s.src = files[n++]; s.onload = next; s.onerror = function () { out.appendChild(h('p', { class: 'warn', text: 'Не загрузился ' + s.src })); next(); }; document.body.appendChild(s);
+  }
+  function wrong(q) {
+    if (q.type === 'single') return [(q.a + 1) % q.o.length];
+    if (q.type === 'multi') { var a = [].concat(q.a); return a.length === q.o.length ? a.slice(1) : q.o.map(function (_, i) { return i; }).filter(function (i) { return a.indexOf(i) < 0; }).slice(0, 1).concat(a); }
+    if (q.type === 'num') return String(q.a === 0 ? 5 : q.a * 1.5 + 1);
+    if (q.type === 'short') return 'заведомо неверно';
+    if (q.type === 'match') { var m = q.a.slice(); m[0] = (m[0] + 1) % q.right.length; return m; }
+    if (q.type === 'order') { var o = q.items.map(function (_, i) { return i; }); o.reverse(); return o; }
+  }
+  function right(q) {
+    if (q.type === 'single') return [q.a]; if (q.type === 'multi') return [].concat(q.a);
+    if (q.type === 'num') return String(q.a).replace('.', ','); if (q.type === 'short') return q.a[0];
+    if (q.type === 'match') return q.a.slice(); return q.items.map(function (_, i) { return i; });
+  }
+  function run() {
+    var rows = [], tot = { q: 0, qBad: 0, sim: 0, simBad: 0, fig: 0, figBad: 0, f: 0, fBad: 0 }, sand = h('div', { style: 'position:absolute;left:-9999px;top:0;width:900px' });
+    document.body.appendChild(sand); QB._demo = true;
+    QB.TOC.list.forEach(function (t) {
+      var m = QB.mods[t.id], bad = [];
+      if (!m) { rows.push([t.n, t.title, 'модуль не загружен']); return; }
+      m.quiz.forEach(function (q) {
+        tot.q++;
+        try { QB.renderQ(q, 0, 'qa-' + m.id, function () { }); var r = q._check(right(q)), w = q._check(wrong(q)); if (!r.ok) { bad.push(q.id + ': ключ не принят'); tot.qBad++; } else if (w.ok) { bad.push(q.id + ': принят неверный ответ'); tot.qBad++; } }
+        catch (e) { bad.push(q.id + ': ' + e.message); tot.qBad++; }
+      });
+      var sims = [[m.lab.sim, m.lab.opts, m.lab.explain || []]].concat(m.theory.filter(function (b) { return b.sim; }).map(function (b) { return [b.sim, b.opts, []]; }));
+      sims.forEach(function (s) {
+        tot.sim++; var host = h('div'); sand.appendChild(host);
+        try { var api = QB.sims[s[0]](host, s[1] || {}, { mid: 'qa', st: {}, save: function () { }, badge: function () { } }); s[2].forEach(function (st) { api.set(st[0]); }); if (!host.children.length) throw new Error('пустая сцена'); }
+        catch (e) { bad.push('модель ' + s[0] + ': ' + e.message); tot.simBad++; }
+        host.remove();
+      });
+      [m.hook.fig].concat(m.theory.map(function (b) { return b.fig; })).filter(Boolean).forEach(function (f) { tot.fig++; try { var svg = QB.figs[f].svg(); if (svg.indexOf('<svg') !== 0 || svg.indexOf('NaN') >= 0 || svg.indexOf('undefined') >= 0) throw new Error('некорректный SVG'); if (!QB.figs[f].alt) throw new Error('нет описания'); } catch (e) { bad.push('иллюстрация ' + f + ': ' + e.message); tot.figBad++; } });
+      var txt = JSON.stringify(m); (txt.match(/\$[^$]+\$/g) || []).forEach(function (f) { tot.f++; var r = QB.fmt(JSON.parse('"' + f + '"')); if (/[{}\\^]|_[A-Za-zА-я0-9]/.test(r.replace(/<[^>]+>/g, ''))) { bad.push('формула: ' + f.slice(0, 40)); tot.fBad++; } });
+      rows.push([m.n, m.title, bad.length ? bad.join('; ') : 'без замечаний', m.quiz.length]);
+    });
+    QB._demo = false; sand.remove();
+    try { Object.keys(localStorage).forEach(function () { }); var d = QB.store.all(); Object.keys(d.mods).forEach(function (k) { if (k.indexOf('qa-') === 0) delete d.mods[k]; }); QB.store.save(); } catch (e) { }
+    var ok = !(tot.qBad + tot.simBad + tot.figBad + tot.fBad);
+    out.appendChild(h('div', { class: 'fb ' + (ok ? 'ok' : 'no'), id: 'qa-result', 'data-ok': String(ok), html: '<b class="tag">' + (ok ? '✓ Автоматическая проверка пройдена' : '✗ Есть замечания') + '</b>Модулей: ' + rows.length + ' · заданий: ' + tot.q + ' (ошибок: ' + tot.qBad + ') · запусков моделей: ' + tot.sim + ' (ошибок: ' + tot.simBad + ') · иллюстраций: ' + tot.fig + ' (ошибок: ' + tot.figBad + ') · формул: ' + tot.f + ' (ошибок разметки: ' + tot.fBad + ')' }));
+    out.appendChild(h('div', { class: 'tw', style: 'margin-top:1rem' }, h('table', { class: 't' }, [h('tr', {}, ['№', 'Модуль', 'Заданий', 'Результат'].map(function (x) { return h('th', { text: x }); }))].concat(rows.map(function (r) { return h('tr', {}, [h('td', { text: r[0] }), h('td', { text: r[1] }), h('td', { text: r[3] || '' }), h('td', { text: r[2] })]); })))));
+    out.appendChild(h('p', { class: 'note', style: 'margin-top:1rem', text: 'Что проверяется: каждое задание принимает свой ключ и отклоняет заведомо неверный ответ; каждая модель запускается и проходит все шаги режима «Смотрю объяснение»; иллюстрации строятся и имеют текстовое описание; в формулах не осталось неразобранной разметки. Что не проверяется: научная корректность формулировок, удобство на конкретном устройстве, восприятие учащимися.' }));
+    window.QA = { ok: ok, tot: tot, rows: rows };
+    QB.footer();
+  }
+  next();
+})();
+</script>
+</body>
+</html>

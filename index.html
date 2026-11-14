@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DOCENAR • КВАНТ. От света к устройству материи — интерактивный учебник</title>
+<meta name="description" content="Интерактивный иллюстрированный учебник по квантовой физике для XI класса: 22 учебных модуля с моделями, заданиями и материалами для преподавателя.">
+<link rel="stylesheet" href="lib/style.css">
+<link rel="icon" href="assets/images/favicon.svg">
+</head>
+<body>
+<noscript><div style="padding:2rem;max-width:60ch;margin:auto"><h1>DOCENAR • КВАНТ</h1><p>Интерактивному учебнику нужен включённый JavaScript. Все файлы лежат локально, интернет не требуется.</p></div></noscript>
+<script src="lib/physics.js"></script>
+<script src="lib/core.js"></script>
+<script src="lib/toc.js"></script>
+<script src="lib/art.js"></script>
+<script>
+(function () {
+  var h = QB.h, T = QB.TOC, all = QB.store.all();
+  QB.topbar('Интерактивный учебник · XI класс · базовый уровень');
+  var main = h('main', { class: 'wrap', id: 'main' });
+  document.body.appendChild(main);
+
+  /* обложка */
+  var last = all.last && T.byId[all.last.m] ? all.last : null;
+  var cover = h('section', { class: 'cover' });
+  cover.innerHTML = QB.art.cover();
+  cover.appendChild(h('div', { class: 'txt' }, [
+    h('h1', {}, [h('span', { text: 'DOCENAR • КВАНТ' }), 'От света к устройству материи']),
+    h('p', { text: 'Учебник, который можно исследовать: 22 занятия по квантовой физике — от фотоэффекта до элементарных частиц. В каждом — вопрос, прогноз, модель, которую можно менять руками, и проверка.' }),
+    h('div', { class: 'row' }, [
+      h('a', { class: 'btn pri', href: last ? 'modules/' + last.m + '.html#' + last.s : 'modules/m01.html', text: last ? 'Продолжить: модуль ' + T.byId[last.m].n : 'Начать с первого занятия' }),
+      h('a', { class: 'btn', href: '#map', text: 'Карта учебника' })
+    ]),
+    last ? h('p', { style: 'margin-top:.6em;font-size:.8rem', text: 'Вы остановились на: «' + T.byId[last.m].title + '», шаг «' + (QB.STEPS.filter(function (s) { return s[0] === last.s; })[0] || ['', ''])[1] + '».' }) : null
+  ]));
+  main.appendChild(cover);
+
+  /* как устроено занятие */
+  var cyc = ['Заметь явление', 'Сделай прогноз', 'Выбери условия', 'Исследуй', 'Объясни', 'Реши новую задачу', 'Оцени границы вывода'];
+  main.appendChild(h('section', { class: 'card', 'aria-label': 'Как устроено каждое занятие' }, [
+    h('h4', { text: 'Как устроено каждое занятие' }),
+    h('ol', { class: 'chips', style: 'counter-reset:c' }, cyc.map(function (c, i) { return h('li', { class: 'chip', html: '<b style="color:#087F78">' + (i + 1) + '</b>&nbsp; ' + c }); })),
+    h('p', { style: 'margin:0;max-width:90ch', text: 'Главная мысль учебника: физик не «знает ответ», а выбирает модель, проверяет её на опыте и понимает, где она перестаёт работать. Поэтому у каждой модели здесь указаны границы применимости, а вместо «выучи формулу» — «сначала предскажи, потом проверь».' })
+  ]));
+
+  /* журнал исследователя */
+  var counts = {}, total = 0; Object.keys(QB.BADGES).forEach(function (k) { counts[k] = 0; });
+  T.list.forEach(function (m) { var b = (all.mods[m.id] || {}).badges || {}; Object.keys(b).forEach(function (k) { if (k in counts) { counts[k]++; total++; } }); });
+  var doneMods = T.list.filter(function (m) { return QB.progress(m.id) === 1; }).length;
+  main.appendChild(h('section', { class: 'card story', 'aria-label': 'Журнал исследователя' }, [
+    h('h4', { text: 'Журнал исследователя' }),
+    h('p', { style: 'max-width:90ch', html: 'Здесь отмечаются не баллы, а <b>освоенные приёмы работы</b>. Все материалы открыты всегда: ничего не нужно «зарабатывать». Журнал можно скрыть кнопкой «Без сюжета». Пройдено модулей полностью: <b>' + doneMods + ' из ' + T.list.length + '</b>.' }),
+    h('div', { class: 'badges' }, Object.keys(QB.BADGES).map(function (k) { return h('div', { class: 'badge' + (counts[k] ? ' on' : ''), title: QB.BADGES[k][1] }, [h('b', { text: counts[k] ? '×' + counts[k] : '○' }), h('span', { text: QB.BADGES[k][0] })]); }))
+  ]));
+
+  /* закладки */
+  if (all.bm.length) main.appendChild(h('section', { class: 'card', 'aria-label': 'Закладки' }, [h('h4', { text: 'Мои закладки' }), h('div', { class: 'row' }, all.bm.filter(function (id) { return T.byId[id]; }).map(function (id) { return h('a', { class: 'btn sm', href: 'modules/' + id + '.html', text: '★ ' + T.byId[id].n + '. ' + T.byId[id].title }); }))]));
+
+  /* карта */
+  var map = h('section', { id: 'map', 'aria-label': 'Карта учебника' });
+  T.parts.forEach(function (p, i) {
+    var ms = T.list.filter(function (m) { return m.part === i + 1; });
+    map.appendChild(h('div', { class: 'partH' }, [h('span', { class: 'num', text: p.n }), h('h2', { style: 'margin:0', text: p.title }), h('small', { text: p.topic + ' · ' + p.hours + ' ч · занятий в учебнике: ' + ms.length })]));
+    map.appendChild(h('div', { class: 'grid' }, ms.map(function (m) {
+      var pr = QB.progress(m.id), a = h('a', { class: 'mc', href: 'modules/' + m.id + '.html' });
+      var th = h('div', { class: 'th' }); th.innerHTML = QB.art.thumb(m); a.appendChild(th);
+      if (all.bm.indexOf(m.id) >= 0) a.appendChild(h('span', { class: 'bm', text: '★ закладка' }));
+      a.appendChild(h('div', { class: 'bd' }, [h('span', { class: 'no', text: 'Занятие ' + m.n + (pr === 1 ? ' · пройдено' : pr > 0 ? ' · начато' : '') }), h('h3', { text: m.title }), h('p', { text: m.question }),
+        h('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': Math.round(pr * 100), 'aria-label': 'Прогресс' }, h('i', { style: 'width:' + pr * 100 + '%' }))]));
+      return a;
+    })));
+  });
+  main.appendChild(map);
+  main.appendChild(h('p', { class: 'note', style: 'margin-top:2rem;max-width:90ch', html: 'Учебник охватывает темы 5–8 учебной программы по физике для XI класса (базовый уровень, постановление Министерства образования Республики Беларусь от 29.07.2025 № 132). Разбивка тем на 22 занятия — рабочая: она сверяется с календарно-тематическим планом учреждения. Каждое занятие открывается отдельным файлом и работает без интернета.' }));
+  QB.footer();
+})();
+</script>
+</body>
+</html>
