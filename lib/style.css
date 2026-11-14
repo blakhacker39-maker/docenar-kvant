@@ -150,7 +150,7 @@ textarea.inp{width:100%;min-height:6.5em;resize:vertical}select.inp{width:auto;m
 /* обложка и карта */
 .cover{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:var(--panel);box-shadow:var(--shadow);margin:1rem 0 2rem}
 .cover svg{display:block;width:100%;height:auto}
-.cover .txt{position:absolute;left:4.5%;top:10%;width:38%}
+.cover .txt{position:absolute;left:4.5%;top:10%;width:35%}
 .cover .txt p{font-size:clamp(.82rem,1.25vw,1.05rem);color:var(--ink2)}
 .cover h1 span{display:block;font-family:var(--sans);font-size:.3em;letter-spacing:.24em;font-weight:600;color:var(--teal-d);margin-bottom:.7em}
 .partH{display:flex;align-items:baseline;gap:1rem;margin:2.2rem 0 .9rem;border-bottom:2px solid var(--ink);padding-bottom:.4rem;flex-wrap:wrap}
