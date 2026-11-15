@@ -97,7 +97,7 @@ details.rev>div{padding:0 .9em .7em 2.5em}
 
 /* лаборатория */
 .lab{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.8fr);gap:1rem;align-items:start}
-.scene{background:var(--night);border-radius:var(--r);overflow:hidden;position:relative;color:#E9F0EE;aspect-ratio:16/9;min-height:230px}
+.scene{width:100%;min-width:0;background:var(--night);border-radius:var(--r);overflow:hidden;position:relative;color:#E9F0EE;aspect-ratio:16/9;min-height:230px}
 .scene.light{background:var(--panel);border:1px solid var(--line);color:var(--ink)}
 .scene svg,.scene canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .scene .cap{position:absolute;left:12px;bottom:8px;font-size:.66rem;opacity:.7;max-width:26%;line-height:1.3}
@@ -116,7 +116,8 @@ input[type=range]{width:100%;accent-color:var(--teal);height:28px;margin:0}
 table.t{border-collapse:collapse;width:100%;font-size:.84rem;font-variant-numeric:tabular-nums}
 table.t th,table.t td{border-bottom:1px solid var(--line);padding:.4em .5em;text-align:left}
 table.t th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2);font-weight:600}
-.tw{overflow-x:auto}
+.tw{overflow-x:auto;min-width:0;max-width:100%}
+.lab>*,.two>*,.ss-grid>*,.mod>*{min-width:0}
 .plot text{font-family:var(--sans);font-size:13.5px;fill:var(--ink2)}
 .player{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;background:var(--violet-bg);border-radius:12px;padding:.6rem .8rem;margin:0 0 1rem}
 .player p{flex:1 1 300px;margin:0;font-size:.95rem;min-height:3em}
@@ -222,3 +223,35 @@ html:not(.teach) .teach-only{display:none!important}
 details.more-text>summary{font-weight:600}
 @media (max-width:860px){.ss-grid{grid-template-columns:1fr!important}.ss{padding:.8rem}}
 @media print{.ss-bar,.ss-ctrl,.ss-tabs{display:none!important}details.more-text{display:block}details.more-text>div{display:block!important}}
+
+/* компактная шапка на телефоне, крупные цели касания, листаемые схемы (по итогам дизайн-ревью 15.11) */
+.menu-btn{display:none}
+.sr-h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.like-h1{font-size:clamp(1.9rem,4.6vw,3.3rem)}
+.ss-pan,.lab-pan{display:none;font-size:.8rem;color:var(--ink2);margin:.35rem 0 0}
+@media (max-width:760px){
+  .top-in{flex-wrap:nowrap;padding:.4rem .8rem;gap:.5rem}
+  .top .search,.top .tools{display:none}
+  .menu-btn{display:inline-flex;margin-left:auto}
+  .top.open .top-in{flex-wrap:wrap}
+  .top.open .search{display:block;flex:1 1 100%;max-width:none;order:5}
+  .top.open .tools{display:flex;flex:1 1 100%;order:6;padding-bottom:.4rem}
+  .top.open .tools .btn{flex:1 1 auto}
+  .ss-panel{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ss-panel svg{min-width:var(--mw,560px)}
+  .ss-pan{display:block}
+  .lab>div:first-child{overflow-x:auto}
+  .lab .scene{min-width:600px}
+  .lab-pan{display:block}
+}
+@media (pointer:coarse){
+  .btn,.btn.sm{min-height:44px}
+  .rail button{min-height:44px}
+  .seg button{min-height:44px}
+  .ss-tabs button{min-height:44px}
+  .opt{min-height:44px}
+  input[type=range]{height:36px}
+}
+
+.orb-stage{background:radial-gradient(circle at 50% 45%,#FFFEFA,#EEF0EA);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-height:120px}
+.orb-stage canvas{display:block;width:100%!important;height:auto!important}
