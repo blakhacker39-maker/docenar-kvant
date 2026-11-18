@@ -219,7 +219,7 @@ html:not(.teach) .teach-only{display:none!important}
 .ss-ctrl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.4rem 1.2rem;margin:.4rem 0}
 .ss-ro{display:flex;flex-wrap:wrap;gap:.4rem .9rem;font-size:.92rem;background:var(--soft,#F6F3EB);border-radius:10px;padding:.5em .8em;margin-top:.5rem}
 .ss-ro:empty{display:none}.ss-ro b{font-variant-numeric:tabular-nums}
-.kf{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.6rem}.kf .formula{margin:0}
+.kf{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:.6rem}.kf .formula{margin:0}
 details.more-text>summary{font-weight:600}
 @media (max-width:860px){.ss-grid{grid-template-columns:1fr!important}.ss{padding:.8rem}}
 @media print{.ss-bar,.ss-ctrl,.ss-tabs{display:none!important}details.more-text{display:block}details.more-text>div{display:block!important}}
@@ -228,7 +228,15 @@ details.more-text>summary{font-weight:600}
 .menu-btn{display:none}
 .sr-h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .like-h1{font-size:clamp(1.9rem,4.6vw,3.3rem)}
-.ss-pan,.lab-pan{display:none;font-size:.8rem;color:var(--ink2);margin:.35rem 0 0}
+.scene-scroll{overflow-x:auto}
+.scene-zoom{margin:0 0 .45rem}
+.scene-plot{width:100%;height:auto;display:block;background:#FFFEFA;border:1px solid var(--line);border-radius:12px}
+.scene-scroll .scene{min-height:0}
+.scene-zoomed>svg,.scene-zoomed>.scene{min-width:max(100%,var(--scene-detail,600px))}
+.lab-first{border-inline-start:3px solid var(--teal);background:var(--ok-bg);margin:0 0 1rem;padding:.7rem .9rem}
+.lab-first h3{font-size:1rem;margin:0 0 .25rem}
+.lab-first p{margin:0}
+.lab-next{counter-reset:t 1}
 @media (max-width:760px){
   .top-in{flex-wrap:nowrap;padding:.4rem .8rem;gap:.5rem}
   .top .search,.top .tools{display:none}
@@ -237,12 +245,6 @@ details.more-text>summary{font-weight:600}
   .top.open .search{display:block;flex:1 1 100%;max-width:none;order:5}
   .top.open .tools{display:flex;flex:1 1 100%;order:6;padding-bottom:.4rem}
   .top.open .tools .btn{flex:1 1 auto}
-  .ss-panel{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .ss-panel svg{min-width:var(--mw,560px)}
-  .ss-pan{display:block}
-  .lab>div:first-child{overflow-x:auto}
-  .lab .scene{min-width:600px}
-  .lab-pan{display:block}
 }
 @media (pointer:coarse){
   .btn,.btn.sm{min-height:44px}
